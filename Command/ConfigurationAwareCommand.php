@@ -2,10 +2,10 @@
 
 namespace Padam87\CronBundle\Command;
 
+use Exception;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class ConfigurationAwareCommand extends Command
@@ -13,13 +13,16 @@ abstract class ConfigurationAwareCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addOption('group', 'g', InputArgument::OPTIONAL)
         ;
     }
 
+    /**
+     * @throws Exception
+     */
     public function getConfiguration(): array
     {
         if (method_exists($this->getApplication(), "getKernel")) {
@@ -29,7 +32,7 @@ abstract class ConfigurationAwareCommand extends Command
 
             $config = $container->getParameter('padam87_cron');
         } else {
-            throw new \Exception('Not implemented yet. PRs are welcome, as always.');
+            throw new RuntimeException('Not implemented yet. PRs are welcome, as always.');
         }
 
         return $config;

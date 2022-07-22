@@ -2,17 +2,19 @@
 
 namespace Padam87\CronBundle\Util;
 
+use ArrayAccess;
 use Padam87\CronBundle\Annotation\Job;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
+use UnexpectedValueException;
 
-class Tab implements \ArrayAccess
+class Tab implements ArrayAccess
 {
     /**
      * @var Job[]
      */
-    private $jobs = [];
-    private $vars;
+    private array $jobs = [];
+    private VariableBag $vars;
 
     public function __construct()
     {
@@ -22,17 +24,15 @@ class Tab implements \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->jobs[$offset]);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return Job
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): Job
     {
         return $this->jobs[$offset];
     }
@@ -40,13 +40,13 @@ class Tab implements \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (!$value instanceof Job) {
-            throw new \UnexpectedValueException(
+            throw new UnexpectedValueException(
                 sprintf(
                     'The crontab should only contain instances of "%s", "%s" given',
-                    'Padam87\CronBundle\Annotation\Job',
+                    Job::class,
                     get_class($value)
                 )
             );
@@ -62,7 +62,7 @@ class Tab implements \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->jobs[$offset]);
     }
@@ -88,7 +88,7 @@ class Tab implements \ArrayAccess
 
         $table->render();
 
-        return (string) $this->vars . PHP_EOL . $output->fetch();
+        return $this->vars . PHP_EOL . $output->fetch();
     }
 
     /**

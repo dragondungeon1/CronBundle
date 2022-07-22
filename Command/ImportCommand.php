@@ -2,8 +2,6 @@
 
 namespace Padam87\CronBundle\Command;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Padam87\CronBundle\Util\Helper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,10 +9,7 @@ use Symfony\Component\Process\Process;
 
 class ImportCommand extends DumpCommand
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -25,10 +20,7 @@ class ImportCommand extends DumpCommand
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $path = $this->dump($input);
 

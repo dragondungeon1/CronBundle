@@ -28,27 +28,46 @@ padam87_cron:
 
 ### Basic
 
+#### php 7.4
 ```php
 /**
  * @Cron\Job(minute="5", hour="0")
  */
 class MyCommand extends Command
 ```
+#### php 8
+```php
+#[Job(minute: '5', hour: '0')]
+class MyCommand extends Command
+```
 
 ### Groups
-
+#### php 7.4
 ```php
 /**
  * @Cron\Job(minute="5", hour="0", group="master")
  */
 class MyCommand extends Command
 ```
+#### php 8
+```php
+#[Job(minute: '5',hour: '0')]
+class MyCommand extends Command
+```
 
 ### Output file
-
+#### php 7.4
 ```php
 /**
  * @Cron\Job(minute="5", hour="0", logFile="my-command.log")
  */
 class MyCommand extends Command
 ```
+
+#### php 8
+```php
+#[Job(minute: '5', hour: '0',  logFile: 'my-command.log')]
+class MyCommand extends Command
+```
+
+

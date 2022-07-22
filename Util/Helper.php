@@ -4,14 +4,17 @@ namespace Padam87\CronBundle\Util;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Padam87\CronBundle\Annotation\Job;
+use ReflectionAttribute;
+use ReflectionClass;
+use ReflectionException;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 
 class Helper
 {
-    private $application;
-    private $annotationReader;
+    private Application $application;
+    private AnnotationReader $annotationReader;
 
     public function __construct(Application $application, AnnotationReader $annotationReader)
     {
@@ -19,38 +22,59 @@ class Helper
         $this->annotationReader = $annotationReader;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function createTab(InputInterface $input, ?array $config = null): Tab
     {
+        $attributesSupported = class_exists('ReflectionAttribute');
+
+        $group = $input->hasOption('group') ? $input->getOption('group') : null;
+
         $tab = new Tab();
 
-        foreach($this->application->all() as $command) {
+        foreach ($this->application->all() as $command) {
             $commandInstance = $command instanceof LazyCommand
                 ? $command->getCommand()
                 : $command;
 
-            $annotations = $this->annotationReader->getClassAnnotations(new \ReflectionClass($commandInstance));
+            $reflectionClass = new ReflectionClass($commandInstance);
 
-            foreach ($annotations as $annotation) {
-                if ($annotation instanceof Job) {
-                    $group = $input->hasOption('group') ? $input->getOption('group') : null;
+            $attributesOrAnnotations = array_merge(
+                ...array_filter([
+                $this->annotationReader->getClassAnnotations($reflectionClass),
+                $attributesSupported?$reflectionClass->getAttributes():null,
+            ]));
 
-                    if ($group !== null && $group != $annotation->group) {
+            if ([] === $attributesOrAnnotations) {
+                continue;
+            }
+
+            foreach ($attributesOrAnnotations as $attributesOrAnnotation) {
+                if ($attributesSupported && $attributesOrAnnotation instanceof ReflectionAttribute
+                    && $attributesOrAnnotation->getName() === Job::class) {
+
+                    $attributesOrAnnotation = new Job($attributesOrAnnotation->getArguments());
+                }
+
+                if ($attributesOrAnnotation instanceof Job) {
+                    if ($group !== null && $group !== $attributesOrAnnotation->group) {
                         continue;
                     }
 
-                    $annotation->commandLine = sprintf(
+                    $attributesOrAnnotation->commandLine = sprintf(
                         '%s %s %s',
                         $config['php_binary'],
                         realpath($_SERVER['argv'][0]),
-                        $annotation->commandLine === null ? $commandInstance->getName() : $annotation->commandLine
+                        $attributesOrAnnotation->commandLine ?? $commandInstance->getName()
                     );
 
-                    if ($config['log_dir'] !== null && $annotation->logFile !== null) {
+                    if ($config['log_dir'] !== null && $attributesOrAnnotation->logFile !== null) {
                         $logDir = rtrim($config['log_dir'], '\\/');
-                        $annotation->logFile = $logDir . DIRECTORY_SEPARATOR . $annotation->logFile;
+                        $attributesOrAnnotation->logFile = $logDir.DIRECTORY_SEPARATOR.$attributesOrAnnotation->logFile;
                     }
 
-                    $tab[] = $annotation;
+                    $tab[] = $attributesOrAnnotation;
                 }
             }
         }

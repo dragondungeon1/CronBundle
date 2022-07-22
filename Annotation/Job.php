@@ -2,49 +2,54 @@
 
 namespace Padam87\CronBundle\Annotation;
 
+use Attribute;
+
 /**
  * @Annotation
  * @Target("CLASS")
  */
+#[Attribute(Attribute::TARGET_CLASS)]
 class Job
 {
-    /**
-     * @var string
-     */
-    public $minute = '*';
+    public string $minute = '*';
+    public string $hour = '*';
+    public string $day = '*';
+    public string $month = '*';
+    public string $dayOfWeek = '*';
 
-    /**
-     * @var string
-     */
-    public $hour = '*';
+    public ?string $group = null;
 
-    /**
-     * @var string
-     */
-    public $day = '*';
+    public ?string $logFile = null;
 
-    /**
-     * @var string
-     */
-    public $month = '*';
+    public ?string $commandLine = null;
 
-    /**
-     * @var string
-     */
-    public $dayOfWeek = '*';
+    public function __construct(
+        /** @var string|array */ $minute,
+        string $hour = null,
+        string $day = null,
+        string $month = null,
+        string $dayOfWeek = null,
+        string $group = null,
+        string $logFile = null,
+        ?string $commandLine = null
+    ) {
+        if (is_array($minute)) {
+            $arguments = $minute;
 
-    /**
-     * @var string
-     */
-    public $commandLine;
+            $this->commandLine = null;
 
-    /**
-     * @var string
-     */
-    public $group;
-
-    /**
-     * @var string
-     */
-    public $logFile;
+            foreach ($arguments as $key => $value) {
+                $this->{$key} = $value;
+            }
+        } else {
+            $this->commandLine = $commandLine;
+            $this->minute = $minute;
+            $this->hour = $hour;
+            $this->day = $day;
+            $this->month = $month;
+            $this->dayOfWeek = $dayOfWeek;
+            $this->group = $group;
+            $this->logFile = $logFile;
+        }
+    }
 }
