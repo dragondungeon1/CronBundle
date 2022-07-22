@@ -28,45 +28,48 @@ padam87_cron:
 
 ### Basic
 
-#### php 7.4
+_Using attributes (requires PHP 8.0 or higher)_
+```php
+#[Job(minute: '5', hour: '0')]
+class MyCommand extends Command
+```
+
+_Using annotations_
 ```php
 /**
  * @Cron\Job(minute="5", hour="0")
  */
 class MyCommand extends Command
 ```
-#### php 8
+
+### Groups
+
+_Using attributes (requires PHP 8.0 or higher)_
 ```php
-#[Job(minute: '5', hour: '0')]
+#[Job(minute: '5',hour: '0', group: 'master')]
 class MyCommand extends Command
 ```
 
-### Groups
-#### php 7.4
+_Using annotations_
 ```php
 /**
  * @Cron\Job(minute="5", hour="0", group="master")
  */
 class MyCommand extends Command
 ```
-#### php 8
+
+### Output file
+_Using attributes (requires PHP 8.0 or higher)_
 ```php
-#[Job(minute: '5',hour: '0')]
+#[Job(minute: '5', hour: '0', logFile: 'my-command.log')]
 class MyCommand extends Command
 ```
 
-### Output file
-#### php 7.4
+_Using annotations_
 ```php
 /**
  * @Cron\Job(minute="5", hour="0", logFile="my-command.log")
  */
-class MyCommand extends Command
-```
-
-#### php 8
-```php
-#[Job(minute: '5', hour: '0',  logFile: 'my-command.log')]
 class MyCommand extends Command
 ```
 

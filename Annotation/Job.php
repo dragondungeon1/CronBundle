@@ -2,13 +2,11 @@
 
 namespace Padam87\CronBundle\Annotation;
 
-use Attribute;
-
 /**
  * @Annotation
  * @Target("CLASS")
  */
-#[Attribute(Attribute::TARGET_CLASS)]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 class Job
 {
     public string $minute = '*';
@@ -24,23 +22,18 @@ class Job
     public ?string $commandLine = null;
 
     public function __construct(
-        /** @var string|array */ $minute,
-        string $hour = null,
-        string $day = null,
-        string $month = null,
-        string $dayOfWeek = null,
-        string $group = null,
-        string $logFile = null,
+        string|array $minute = '*',
+        string $hour = '*',
+        string $day = '*',
+        string $month = '*',
+        string $dayOfWeek = '*',
+        string $group = '',
+        string $logFile = '',
         ?string $commandLine = null
     ) {
         if (is_array($minute)) {
-            $arguments = $minute;
-
-            $this->commandLine = null;
-
-            foreach ($arguments as $key => $value) {
-                $this->{$key} = $value;
-            }
+            // Invocation through annotations with an array parameter only
+            $this->processAttribute($minute);
         } else {
             $this->commandLine = $commandLine;
             $this->minute = $minute;
@@ -50,6 +43,13 @@ class Job
             $this->dayOfWeek = $dayOfWeek;
             $this->group = $group;
             $this->logFile = $logFile;
+        }
+    }
+
+    public function processAttribute(array $attributes): void
+    {
+        foreach ($attributes as $name => $value) {
+            $this->$name = $value;
         }
     }
 }

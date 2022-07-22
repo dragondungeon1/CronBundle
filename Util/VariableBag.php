@@ -2,25 +2,26 @@
 
 namespace Padam87\CronBundle\Util;
 
-use ArrayAccess;
 use Padam87\CronBundle\Annotation\Job;
 
-class VariableBag implements ArrayAccess
+class VariableBag implements \ArrayAccess
 {
-    private array $vars = [];
+    private $vars = [];
 
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset): bool
+    public function offsetExists($offset)
     {
         return isset($this->vars[$offset]);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return Job
      */
-    public function offsetGet($offset): Job
+    public function offsetGet($offset)
     {
         return $this->vars[$offset];
     }
@@ -28,7 +29,7 @@ class VariableBag implements ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet($offset, $value)
     {
         $this->vars[$offset] = $value;
     }
@@ -36,7 +37,7 @@ class VariableBag implements ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset($offset)
     {
         unset($this->vars[$offset]);
     }
